@@ -3517,7 +3517,7 @@ input, select, textarea {
 			opacity: 0;
 		}
 
-		body.is-preload #banner h2 {
+		/* body.is-preload #banner h2 {
 			opacity: 0;
 			-moz-transform: translateX(0.25em);
 			-webkit-transform: translateX(0.25em);
@@ -3527,7 +3527,7 @@ input, select, textarea {
 			-webkit-filter: blur(2px);
 			-ms-filter: blur(2px);
 			filter: blur(2px);
-		}
+		} */
 
 		body.is-preload #banner p {
 			opacity: 0;

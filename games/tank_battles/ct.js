@@ -3302,13 +3302,7 @@ ct.rooms.beforeDraw = function beforeDraw() {
     
 };
 ct.rooms.afterDraw = function afterDraw() {
-    ct.mouse.xprev = ct.mouse.x;
-ct.mouse.yprev = ct.mouse.y;
-ct.mouse.xuiprev = ct.mouse.xui;
-ct.mouse.yuiprev = ct.mouse.yui;
-ct.mouse.pressed = ct.mouse.released = false;
-ct.inputs.registry['mouse.Wheel'] = 0;
-if (ct.sound.follow && !ct.sound.follow.kill) {
+    if (ct.sound.follow && !ct.sound.follow.kill) {
     ct.sound.howler.pos(
         ct.sound.follow.x,
         ct.sound.follow.y,
@@ -3317,6 +3311,12 @@ if (ct.sound.follow && !ct.sound.follow.kill) {
 } else if (ct.sound.manageListenerPosition) {
     ct.sound.howler.pos(ct.camera.x, ct.camera.y, ct.camera.z || 0);
 }
+ct.mouse.xprev = ct.mouse.x;
+ct.mouse.yprev = ct.mouse.y;
+ct.mouse.xuiprev = ct.mouse.xui;
+ct.mouse.yuiprev = ct.mouse.yui;
+ct.mouse.pressed = ct.mouse.released = false;
+ct.inputs.registry['mouse.Wheel'] = 0;
 ct.keyboard.clear();
 
 };
@@ -3335,8 +3335,8 @@ ct.rooms.templates['Arena'] = {
         
     },
     onDraw() {
-        this.greenScoreLabel.text = 'Green Score: ' + this.greenScore;
-this.orangeScoreLabel.text = 'Orange Score: ' + this.orangeScore;
+        this.greenScoreLabel.text = 'Green\'\s Kills: ' + this.greenScore;
+this.orangeScoreLabel.text = 'Orange\'\s Kills: ' + this.orangeScore;
     },
     onLeave() {
         
@@ -3344,6 +3344,19 @@ this.orangeScoreLabel.text = 'Orange Score: ' + this.orangeScore;
     onCreate() {
         this.greenScore = 0;
 this.orangeScore = 0;
+
+this.greenDamage = 0;
+this.orangeDamage = 0;
+
+this.greenX = 0;
+this.greenY = 0
+this.orangeX = 0
+this.orangeY = 0;
+
+this.greenLaserLeftHit = false;
+this.greenLaserRightHit = false;
+this.orangeLaserLeftHit = false;
+this.orangeLaserRightHit = false;
 
 this.greenScoreLabel = new PIXI.Text('Greens Score: ' + this.greenScore);
 this.addChild(this.greenScoreLabel);
@@ -3924,60 +3937,16 @@ ct.types.templates["GreenTankLeft"] = {
     depth: 0,
     texture: "tankLeft",
     onStep: function () {
-        this.movespeed = 4 * ct.delta; // Max horizontal speed
-
-if (ct.actions.GreenMoveLeft.down) {
-    // If the A key or left arrow on a keyboard is down, then move to left
-    this.hspeed = -this.movespeed;
+        if (ct.actions.GreenMoveLeft.down) {
+    this.facing = 0;
     this.visible = true;
 } else if (ct.actions.GreenMoveRight.down) {
-    // If the D key or right arrow on a keyboard is down, then move to right
-    this.hspeed = this.movespeed;
+    this.facing = 1;
     this.visible = false;
-} else {
-    // Don't move horizontally if no input
-    this.hspeed = 0;
 }
 
-// If there is ground underneath the Tank
-if (ct.place.occupied(this, this.x, this.y + 1, 'Solid')) {
-    // …and the W key or the spacebar is down…
-    //this.gravity = 0;
-    if (ct.actions.GreenJump.down) {
-        // …then jump!
-        this.vspeed = this.jumpSpeed;
-    } else {
-        // Reset our vspeed. We don't want to be buried underground!
-        this.vspeed = 0;
-    }
-} else {
-    // If there is no ground
-    //this.gravity = 0.5;
-    this.vspeed += this.gravity * ct.delta;
-}
-
-if  (ct.actions.GreenDown.down) {
-    this.gravity = 1.0;
-} else {
-    this.gravity = 0.5;
-}
-
-// Move by horizontal axis, pixel by pixel
-for (var i = 0; i < Math.abs(this.hspeed); i++) {
-    if (ct.place.free(this, this.x + Math.sign(this.hspeed), this.y, 'Solid')) {
-        this.x += Math.sign(this.hspeed);
-    } else {
-        break;
-    }
-}
-// Do the same for vertical speed
-for (var i = 0; i < Math.abs(this.vspeed); i++) {
-    if (ct.place.free(this, this.x, this.y + Math.sign(this.vspeed), 'Solid')) {
-        this.y += Math.sign(this.vspeed);
-    } else {
-        break;
-    }
-}
+this.x = ct.room.greenX;
+this.y = ct.room.greenY;
     },
     onDraw: function () {
         
@@ -3986,16 +3955,11 @@ for (var i = 0; i < Math.abs(this.vspeed); i++) {
         
     },
     onCreate: function () {
-        this.jumpSpeed = -12;
-this.gravity = 0.5;
-
-this.hspeed = 0; // Horizontal speed
-this.vspeed = 0; // Vertical speed
-
-this.visible = false;
+        this.visible = false;
     },
     extends: {
-    "visible": true
+    "visible": true,
+    "ctype": ""
 }
 };
 ct.types.list['GreenTankLeft'] = [];
@@ -4095,9 +4059,49 @@ for (var i = 0; i < Math.abs(this.vspeed); i++) {
     }
 }
 
-if (ct.place.occupied(this, this.x, this.y, 'GreensLaser')) {
+
+// Collision detection for the left laser
+if (ct.place.occupied(this, this.x, this.y, 'GreensLaserLeft')) {
+    this.knockBackLeft = true;
+    ct.room.greenDamage += 1;    
     ct.room.greenScore += 1;
+    ct.room.greenLaserLeftHit = true;
 }
+
+if (this.knockBackLeft == true) {
+    this.x -= this.knockBackStrengthLeft * ( 1 + (ct.room.greenDamage * 0.1));
+    this.knockBackStrengthLeft -= 1;
+    if (this.knockBackStrengthLeft == 0) {
+        this.knockBackLeft = false;
+        this.knockBackStrengthLeft = 20;        
+    }
+}
+
+// Collision detection for the right laser
+if (ct.place.occupied(this, this.x, this.y, 'GreensLaserRight')) {
+    this.knockBackRight = true;
+    ct.room.greenDamage += 1;
+    ct.room.greenLaserRightHit = true;
+}
+
+if (this.knockBackRight == true) {
+    this.x -= this.knockBackStrengthRight * ( 1 + (ct.room.greenDamage * 0.1));
+    this.knockBackStrengthRight += 1;
+    if (this.knockBackStrengthRight == 0) {
+        this.knockBackRight = false;
+        this.knockBackStrengthRight = -20;        
+    }
+}
+
+if (this.y > 800) {
+    this.x = 576;
+    this.y = 254.
+    ct.room.greenScore += 1;
+    ct.room.greenDamage = 0;
+}
+
+ct.room.orangeX = this.x;
+ct.room.orangeY = this.y;
     },
     onDraw: function () {
         
@@ -4121,6 +4125,11 @@ this.timer = ct.timer.add(360000, 'test');
 this.shootStart = 0
 this.shootCurrent = 0;
 this.shootDelay = 500; // in milliseconds how oftern you can shoot
+
+this.knockBackLeft = false;
+this.knockBackStrengthLeft = 20;
+this.knockBackRight = false;
+this.knockBackStrengthRight = -20;
     },
     extends: {
     "ctype": "OrangeTank"
@@ -4131,7 +4140,7 @@ ct.types.templates["GreensLaserBlueLeft"] = {
     depth: 0,
     texture: "LaserBlueLeft",
     onStep: function () {
-        if (this.x < -40 || ct.place.occupied(this, this.x, this.y, 'OrangeTank')) {
+        if (this.x < -40 || ct.room.greenLaserLeftHit == true) {
     this.kill = true;
 }
 
@@ -4146,9 +4155,11 @@ this.move();
     onCreate: function () {
         this.speed = 8;
 this.direction = 180;
+
+ct.room.greenLaserLeftHit = false;
     },
     extends: {
-    "ctype": "GreensLaser"
+    "ctype": "GreensLaserLeft"
 }
 };
 ct.types.list['GreensLaserBlueLeft'] = [];
@@ -4156,7 +4167,7 @@ ct.types.templates["GreensLaserBlueRight"] = {
     depth: 0,
     texture: "LaserBlueRight",
     onStep: function () {
-        if (this.x > 740|| ct.place.occupied(this, this.x, this.y, 'OrangeTank')) {
+        if (this.x > 740 || ct.room.greenLaserRightHit == true) {
     this.kill = true;
 }
 
@@ -4171,9 +4182,11 @@ this.move();
     onCreate: function () {
         this.speed = 8;
 this.direction = 0;
+
+ct.room.greenLaserRightHit = false;
     },
     extends: {
-    "ctype": "GreensLaser"
+    "ctype": "GreensLaserRight"
 }
 };
 ct.types.list['GreensLaserBlueRight'] = [];
@@ -4244,6 +4257,7 @@ for (var i = 0; i < Math.abs(this.hspeed); i++) {
         break;
     }
 }
+
 // Do the same for vertical speed
 for (var i = 0; i < Math.abs(this.vspeed); i++) {
     if (ct.place.free(this, this.x, this.y + Math.sign(this.vspeed), 'Solid')) {
@@ -4253,9 +4267,47 @@ for (var i = 0; i < Math.abs(this.vspeed); i++) {
     }
 }
 
-if (ct.place.occupied(this, this.x, this.y, 'OrangesLaser')) {
-    ct.room.orangeScore += 1;
+// Collision detection for the left laser
+if (ct.place.occupied(this, this.x, this.y, 'OrangesLaserLeft')) {
+    this.knockBackLeft = true;
+    ct.room.orangeDamage += 1;
+    ct.room.orangeLaserLeftHit = true;
 }
+
+if (this.knockBackLeft == true) {
+    this.x -= this.knockBackStrengthLeft * ( 1 + (ct.room.orangeDamage * 0.1));
+    this.knockBackStrengthLeft -= 1;
+    if (this.knockBackStrengthLeft == 0) {
+        this.knockBackLeft = false;
+        this.knockBackStrengthLeft = 20;        
+    }
+}
+
+// Collision detection for the right laser
+if (ct.place.occupied(this, this.x, this.y, 'OrangesLaserRight')) {
+    this.knockBackRight = true;
+    ct.room.orangeDamage += 1;
+    ct.room.orangeLaserRightHit = true;
+}
+
+if (this.knockBackRight == true) {
+    this.x -= this.knockBackStrengthRight * ( 1 + (ct.room.orangeDamage * 0.1));
+    this.knockBackStrengthRight += 1;
+    if (this.knockBackStrengthRight == 0) {
+        this.knockBackRight = false;
+        this.knockBackStrengthRight = -20;        
+    }
+}
+
+if (this.y > 800) {
+    this.x = 64;
+    this.y = 254.
+    ct.room.orangeScore += 1;
+    ct.room.orangeDamage = 0;
+}
+
+ct.room.greenX = this.x;
+ct.room.greenY = this.y;
     },
     onDraw: function () {
         
@@ -4279,6 +4331,11 @@ this.timer = ct.timer.add(360000, 'test');
 this.shootStart = 0
 this.shootCurrent = 0;
 this.shootDelay = 500; // in milliseconds how oftern you can shoot
+
+this.knockBackLeft = false;
+this.knockBackStrengthLeft = 20;
+this.knockBackRight = false;
+this.knockBackStrengthRight = -20;
     },
     extends: {
     "visible": true,
@@ -4290,60 +4347,16 @@ ct.types.templates["OrangeTankRight"] = {
     depth: 0,
     texture: "tankRightOrange",
     onStep: function () {
-        this.movespeed = 4 * ct.delta; // Max horizontal speed
-
-if (ct.actions.OrangeMoveLeft.down) {
-    // If the A key or left arrow on a keyboard is down, then move to left
-    this.hspeed = -this.movespeed;
+        if (ct.actions.OrangeMoveLeft.down) {
     this.facing = 0;
     this.visible = false;
 } else if (ct.actions.OrangeMoveRight.down) {
-    // If the D key or right arrow on a keyboard is down, then move to right
-    this.hspeed = this.movespeed;
     this.facing = 1;
     this.visible = true;
-} else {
-    // Don't move horizontally if no input
-    this.hspeed = 0;
 }
 
-// If there is ground underneath the Tank
-if (ct.place.occupied(this, this.x, this.y + 1, 'Solid')) {
-    // …and the W key or the spacebar is down…
-    if (ct.actions.OrangeJump.down) {
-        // …then jump!
-        this.vspeed = this.jumpSpeed;
-    } else {
-        // Reset our vspeed. We don't want to be buried underground!
-        this.vspeed = 0;
-    }
-} else {
-    // If there is no ground
-    this.vspeed += this.gravity * ct.delta;
-}
-
-if  (ct.actions.OrangeDown.down) {
-    this.gravity = 1.0;
-} else {
-    this.gravity = 0.5;
-}
-
-// Move by horizontal axis, pixel by pixel
-for (var i = 0; i < Math.abs(this.hspeed); i++) {
-    if (ct.place.free(this, this.x + Math.sign(this.hspeed), this.y, 'Solid')) {
-        this.x += Math.sign(this.hspeed);
-    } else {
-        break;
-    }
-}
-// Do the same for vertical speed
-for (var i = 0; i < Math.abs(this.vspeed); i++) {
-    if (ct.place.free(this, this.x, this.y + Math.sign(this.vspeed), 'Solid')) {
-        this.y += Math.sign(this.vspeed);
-    } else {
-        break;
-    }
-}
+this.x = ct.room.orangeX;
+this.y = ct.room.orangeY;
     },
     onDraw: function () {
         
@@ -4352,22 +4365,18 @@ for (var i = 0; i < Math.abs(this.vspeed); i++) {
         
     },
     onCreate: function () {
-        this.jumpSpeed = -12;
-this.gravity = 0.5;
-
-this.hspeed = 0; // Horizontal speed
-this.vspeed = 0; // Vertical speed
-
-this.visible = false;
+        this.visible = false;
     },
-    extends: {}
+    extends: {
+    "ctype": ""
+}
 };
 ct.types.list['OrangeTankRight'] = [];
 ct.types.templates["OrangesLaserBlueLeft"] = {
     depth: 0,
     texture: "LaserBlueLeft",
     onStep: function () {
-        if (this.x < -40 || ct.place.occupied(this, this.x, this.y, 'GreenTank')) {
+        if (this.x < -40 || ct.room.orangeLaserLeftHit == true) {
     this.kill = true;
 }
 
@@ -4382,9 +4391,11 @@ this.move();
     onCreate: function () {
         this.speed = 8;
 this.direction = 180;
+
+ct.room.orangeLaserLeftHit = false;
     },
     extends: {
-    "ctype": "OrangesLaser"
+    "ctype": "OrangesLaserLeft"
 }
 };
 ct.types.list['OrangesLaserBlueLeft'] = [];
@@ -4392,7 +4403,7 @@ ct.types.templates["OrangesLaserBlueRight"] = {
     depth: 0,
     texture: "LaserBlueRight",
     onStep: function () {
-        if (this.x > 740|| ct.place.occupied(this, this.x, this.y, 'GreenTank')) {
+        if (this.x > 740 || ct.room.orangeLaserRightHit == true) {
     this.kill = true;
 }
 
@@ -4407,9 +4418,11 @@ this.move();
     onCreate: function () {
         this.speed = 8;
 this.direction = 0;
+
+ct.room.orangeLaserRightHit = false;
     },
     extends: {
-    "ctype": "OrangesLaser"
+    "ctype": "OrangesLaserRight"
 }
 };
 ct.types.list['OrangesLaserBlueRight'] = [];

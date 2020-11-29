@@ -3308,7 +3308,6 @@ ct.mouse.xuiprev = ct.mouse.xui;
 ct.mouse.yuiprev = ct.mouse.yui;
 ct.mouse.pressed = ct.mouse.released = false;
 ct.inputs.registry['mouse.Wheel'] = 0;
-ct.keyboard.clear();
 if (ct.sound.follow && !ct.sound.follow.kill) {
     ct.sound.howler.pos(
         ct.sound.follow.x,
@@ -3318,6 +3317,7 @@ if (ct.sound.follow && !ct.sound.follow.kill) {
 } else if (ct.sound.manageListenerPosition) {
     ct.sound.howler.pos(ct.camera.x, ct.camera.y, ct.camera.z || 0);
 }
+ct.keyboard.clear();
 
 };
 
@@ -3327,7 +3327,7 @@ ct.rooms.templates['Arena'] = {
     width: 700,
     height: 400,
     /* JSON.parse allows for a much faster loading of big objects */
-    objects: JSON.parse('[{"x":576,"y":256,"type":"OrangeTank"},{"x":128,"y":320,"type":"Rocks_Platform"},{"x":192,"y":320,"type":"Rocks_Platform"},{"x":256,"y":320,"type":"Rocks_Platform"},{"x":320,"y":320,"type":"Rocks_Platform"},{"x":320,"y":320,"type":"Rocks_Platform"},{"x":448,"y":320,"type":"Rocks_Platform"},{"x":512,"y":320,"type":"Rocks_Platform"},{"x":512,"y":320,"type":"Rocks_Platform"},{"x":256,"y":192,"type":"Rocks_Platform"},{"x":320,"y":192,"type":"Rocks_Platform"},{"x":256,"y":192,"type":"Rocks_Platform"},{"x":320,"y":192,"type":"Rocks_Platform"},{"x":384,"y":192,"type":"Rocks_Platform"},{"x":64,"y":320,"type":"Rocks_Platform"},{"x":384,"y":320,"type":"Rocks_Platform"},{"x":576,"y":320,"type":"Rocks_Platform"},{"x":64,"y":256,"type":"tankLeft"},{"x":64,"y":256,"type":"tankRight"}]'),
+    objects: JSON.parse('[{"x":576,"y":256,"type":"OrangeTankLeft"},{"x":128,"y":320,"type":"Rocks_Platform"},{"x":192,"y":320,"type":"Rocks_Platform"},{"x":256,"y":320,"type":"Rocks_Platform"},{"x":320,"y":320,"type":"Rocks_Platform"},{"x":320,"y":320,"type":"Rocks_Platform"},{"x":448,"y":320,"type":"Rocks_Platform"},{"x":512,"y":320,"type":"Rocks_Platform"},{"x":512,"y":320,"type":"Rocks_Platform"},{"x":256,"y":192,"type":"Rocks_Platform"},{"x":320,"y":192,"type":"Rocks_Platform"},{"x":256,"y":192,"type":"Rocks_Platform"},{"x":320,"y":192,"type":"Rocks_Platform"},{"x":384,"y":192,"type":"Rocks_Platform"},{"x":64,"y":320,"type":"Rocks_Platform"},{"x":384,"y":320,"type":"Rocks_Platform"},{"x":576,"y":320,"type":"Rocks_Platform"},{"x":64,"y":256,"type":"GreenTankRight"},{"x":64,"y":256,"type":"GreenTankLeft"},{"x":576,"y":256,"type":"OrangeTankRight"}]'),
     bgs: JSON.parse('[{"depth":-10,"texture":"BG","extends":{}}]'),
     tiles: JSON.parse('[{"depth":-10,"tiles":[],"extends":{}}]'),
     backgroundColor: '#000000',
@@ -3335,13 +3335,27 @@ ct.rooms.templates['Arena'] = {
         
     },
     onDraw() {
-        
+        this.greenScoreLabel.text = 'Green Score: ' + this.greenScore;
+this.orangeScoreLabel.text = 'Orange Score: ' + this.orangeScore;
     },
     onLeave() {
         
     },
     onCreate() {
-        
+        this.greenScore = 0;
+this.orangeScore = 0;
+
+this.greenScoreLabel = new PIXI.Text('Greens Score: ' + this.greenScore);
+this.addChild(this.greenScoreLabel);
+this.greenScoreLabel.x = 30;
+this.greenScoreLabel.y = 30;
+this.greenScoreLabel.depth = 1000;
+
+this.orangeScoreLabel = new PIXI.Text('Oranges Score: ' + this.orangeScore);
+this.addChild(this.orangeScoreLabel);
+this.orangeScoreLabel.x = 470;
+this.orangeScoreLabel.y = 30;
+this.orangeScoreLabel.depth = 1000;
     },
     extends: {
     "isUi": false
@@ -3400,7 +3414,7 @@ ct.styles = {
         soundsTotal: [0][0],
         soundsError: 0,
         sounds: {},
-        registry: [{"tankLeft":{"frames":1,"shape":{"type":"rect","top":0,"bottom":64,"left":0,"right":64},"anchor":{"x":0,"y":0}},"tankRight":{"frames":1,"shape":{"type":"rect","top":-31,"bottom":64,"left":0,"right":64},"anchor":{"x":0,"y":0}},"Rocks_Platform":{"frames":1,"shape":{"type":"rect","top":0,"bottom":40,"left":0,"right":64},"anchor":{"x":0,"y":0}},"BG":{"atlas":"./img/t0.png","frames":0,"shape":{"type":"rect","top":0,"bottom":256,"left":0,"right":256},"anchor":{"x":0,"y":0}},"tankLeftOrange":{"frames":1,"shape":{"type":"rect","top":-31,"bottom":64,"left":0,"right":64},"anchor":{"x":0,"y":0}},"LaserBlueRight":{"frames":1,"shape":{"type":"rect","top":0,"bottom":9,"left":0,"right":54},"anchor":{"x":0,"y":0}},"LaserBlueLeft":{"frames":1,"shape":{"type":"rect","top":0,"bottom":9,"left":0,"right":54},"anchor":{"x":0,"y":0}}}][0],
+        registry: [{"tankLeft":{"frames":1,"shape":{"type":"rect","top":-31,"bottom":64,"left":0,"right":64},"anchor":{"x":0,"y":0}},"tankRight":{"frames":1,"shape":{"type":"rect","top":-31,"bottom":64,"left":0,"right":64},"anchor":{"x":0,"y":0}},"Rocks_Platform":{"frames":1,"shape":{"type":"rect","top":0,"bottom":40,"left":0,"right":64},"anchor":{"x":0,"y":0}},"BG":{"atlas":"./img/t0.png","frames":0,"shape":{"type":"rect","top":0,"bottom":256,"left":0,"right":256},"anchor":{"x":0,"y":0}},"tankLeftOrange":{"frames":1,"shape":{"type":"rect","top":-31,"bottom":64,"left":0,"right":64},"anchor":{"x":0,"y":0}},"LaserBlueRight":{"frames":1,"shape":{"type":"rect","top":0,"bottom":9,"left":0,"right":54},"anchor":{"x":0,"y":0}},"LaserBlueLeft":{"frames":1,"shape":{"type":"rect","top":0,"bottom":9,"left":0,"right":54},"anchor":{"x":0,"y":0}},"tankRightOrange":{"frames":1,"shape":{"type":"rect","top":-31,"bottom":64,"left":0,"right":64},"anchor":{"x":0,"y":0}}}][0],
         atlases: [["./img/a0.json"]][0],
         skelRegistry: [{}][0],
         fetchImage(url, callback) {
@@ -3906,7 +3920,7 @@ if ([false][0] && this instanceof ct.types.Copy) {
     ct.types.addSpd = ct.types.addSpeed;
 
     
-ct.types.templates["tankRight"] = {
+ct.types.templates["GreenTankLeft"] = {
     depth: 0,
     texture: "tankLeft",
     onStep: function () {
@@ -3928,7 +3942,7 @@ if (ct.actions.GreenMoveLeft.down) {
 // If there is ground underneath the Tank
 if (ct.place.occupied(this, this.x, this.y + 1, 'Solid')) {
     // …and the W key or the spacebar is down…
-        this.gravity = 0;
+    //this.gravity = 0;
     if (ct.actions.GreenJump.down) {
         // …then jump!
         this.vspeed = this.jumpSpeed;
@@ -3938,11 +3952,32 @@ if (ct.place.occupied(this, this.x, this.y + 1, 'Solid')) {
     }
 } else {
     // If there is no ground
-    this.gravity = 0.5;
+    //this.gravity = 0.5;
     this.vspeed += this.gravity * ct.delta;
 }
 
-this.move();
+if  (ct.actions.GreenDown.down) {
+    this.gravity = 1.0;
+} else {
+    this.gravity = 0.5;
+}
+
+// Move by horizontal axis, pixel by pixel
+for (var i = 0; i < Math.abs(this.hspeed); i++) {
+    if (ct.place.free(this, this.x + Math.sign(this.hspeed), this.y, 'Solid')) {
+        this.x += Math.sign(this.hspeed);
+    } else {
+        break;
+    }
+}
+// Do the same for vertical speed
+for (var i = 0; i < Math.abs(this.vspeed); i++) {
+    if (ct.place.free(this, this.x, this.y + Math.sign(this.vspeed), 'Solid')) {
+        this.y += Math.sign(this.vspeed);
+    } else {
+        break;
+    }
+}
     },
     onDraw: function () {
         
@@ -3951,7 +3986,7 @@ this.move();
         
     },
     onCreate: function () {
-        this.jumpSpeed = -18;
+        this.jumpSpeed = -12;
 this.gravity = 0.5;
 
 this.hspeed = 0; // Horizontal speed
@@ -3963,7 +3998,7 @@ this.visible = false;
     "visible": true
 }
 };
-ct.types.list['tankRight'] = [];
+ct.types.list['GreenTankLeft'] = [];
 ct.types.templates["Rocks_Platform"] = {
     depth: 0,
     texture: "Rocks_Platform",
@@ -3984,7 +4019,7 @@ ct.types.templates["Rocks_Platform"] = {
 }
 };
 ct.types.list['Rocks_Platform'] = [];
-ct.types.templates["OrangeTank"] = {
+ct.types.templates["OrangeTankLeft"] = {
     depth: 0,
     texture: "tankLeftOrange",
     onStep: function () {
@@ -3993,9 +4028,13 @@ ct.types.templates["OrangeTank"] = {
 if (ct.actions.OrangeMoveLeft.down) {
     // If the A key or left arrow on a keyboard is down, then move to left
     this.hspeed = -this.movespeed;
+    this.facing = 0;
+    this.visible = true;
 } else if (ct.actions.OrangeMoveRight.down) {
     // If the D key or right arrow on a keyboard is down, then move to right
     this.hspeed = this.movespeed;
+    this.facing = 1;
+    this.visible = false;
 } else {
     // Don't move horizontally if no input
     this.hspeed = 0;
@@ -4016,9 +4055,48 @@ if (ct.place.occupied(this, this.x, this.y + 1, 'Solid')) {
     this.vspeed += this.gravity * ct.delta;
 }
 
+if  (ct.actions.OrangeDown.down) {
+    this.gravity = 1.0;
+} else {
+    this.gravity = 0.5;
+}
+
 // Shoot the shell
-if (ct.actions.OrangeShoot.pressed) {
-    ct.types.copy('LaserBlueLeft', this.x - 48, this.y + 30);
+if  (this.canShoot == true) {
+    this.shootStart = this.timer.time;
+    if (ct.actions.OrangeShoot.pressed && this.facing == 1) { 
+        ct.types.copy('OrangesLaserBlueRight', this.x + 48, this.y + 30);
+        this.canShoot = false;
+    } else if (ct.actions.OrangeShoot.pressed && this.facing == 0) {
+        ct.types.copy('OrangesLaserBlueLeft', this.x - 48, this.y + 30);
+        this.canShoot = false;
+    }
+}
+
+this.shootCurrent = this.timer.time;
+if  ((this.shootCurrent - this.shootStart) > this.shootDelay) { //
+    this.canShoot = true;
+}
+
+// Move by horizontal axis, pixel by pixel
+for (var i = 0; i < Math.abs(this.hspeed); i++) {
+    if (ct.place.free(this, this.x + Math.sign(this.hspeed), this.y, 'Solid')) {
+        this.x += Math.sign(this.hspeed);
+    } else {
+        break;
+    }
+}
+// Do the same for vertical speed
+for (var i = 0; i < Math.abs(this.vspeed); i++) {
+    if (ct.place.free(this, this.x, this.y + Math.sign(this.vspeed), 'Solid')) {
+        this.y += Math.sign(this.vspeed);
+    } else {
+        break;
+    }
+}
+
+if (ct.place.occupied(this, this.x, this.y, 'GreensLaser')) {
+    ct.room.greenScore += 1;
 }
     },
     onDraw: function () {
@@ -4028,20 +4106,32 @@ if (ct.actions.OrangeShoot.pressed) {
         
     },
     onCreate: function () {
-        this.jumpSpeed = -9;
+        this.jumpSpeed = -12;
 this.gravity = 0.5;
 
 this.hspeed = 0; // Horizontal speed
 this.vspeed = 0; // Vertical speed
+
+this.facing = 0; // 0 = left, 1= right
+
+this.visible = true;
+
+this.canShoot = true;
+this.timer = ct.timer.add(360000, 'test');
+this.shootStart = 0
+this.shootCurrent = 0;
+this.shootDelay = 500; // in milliseconds how oftern you can shoot
     },
-    extends: {}
+    extends: {
+    "ctype": "OrangeTank"
+}
 };
-ct.types.list['OrangeTank'] = [];
-ct.types.templates["LaserBlueLeft"] = {
+ct.types.list['OrangeTankLeft'] = [];
+ct.types.templates["GreensLaserBlueLeft"] = {
     depth: 0,
     texture: "LaserBlueLeft",
     onStep: function () {
-        if (this.x < -40) {
+        if (this.x < -40 || ct.place.occupied(this, this.x, this.y, 'OrangeTank')) {
     this.kill = true;
 }
 
@@ -4057,14 +4147,16 @@ this.move();
         this.speed = 8;
 this.direction = 180;
     },
-    extends: {}
+    extends: {
+    "ctype": "GreensLaser"
+}
 };
-ct.types.list['LaserBlueLeft'] = [];
-ct.types.templates["LaserBlueRight"] = {
+ct.types.list['GreensLaserBlueLeft'] = [];
+ct.types.templates["GreensLaserBlueRight"] = {
     depth: 0,
     texture: "LaserBlueRight",
     onStep: function () {
-        if (this.x > 740) {
+        if (this.x > 740|| ct.place.occupied(this, this.x, this.y, 'OrangeTank')) {
     this.kill = true;
 }
 
@@ -4080,10 +4172,12 @@ this.move();
         this.speed = 8;
 this.direction = 0;
     },
-    extends: {}
+    extends: {
+    "ctype": "GreensLaser"
+}
 };
-ct.types.list['LaserBlueRight'] = [];
-ct.types.templates["tankLeft"] = {
+ct.types.list['GreensLaserBlueRight'] = [];
+ct.types.templates["GreenTankRight"] = {
     depth: 0,
     texture: "tankRight",
     onStep: function () {
@@ -4106,9 +4200,7 @@ if (ct.actions.GreenMoveLeft.down) {
 
 // If there is ground underneath the Tank
 if (ct.place.occupied(this, this.x, this.y + 1, 'Solid')) {
-    // …and the W key or the spacebar is down…
-        
-        this.gravity = 0;
+    // …and the W key or the spacebar is down…   
     if (ct.actions.GreenJump.down) {
         // …then jump!
         this.vspeed = this.jumpSpeed;
@@ -4118,15 +4210,165 @@ if (ct.place.occupied(this, this.x, this.y + 1, 'Solid')) {
     }
 } else {
     // If there is no ground
-    this.gravity = 0.5;
     this.vspeed += this.gravity * ct.delta;
 }
 
+if  (ct.actions.GreenDown.down) {
+    this.gravity = 1.0;
+} else {
+    this.gravity = 0.5;
+}
+
 // Shoot the shell
-if (ct.actions.GreenShoot.pressed && this.facing == 0) { 
-    ct.types.copy('LaserBlueRight', this.x + 48, this.y + 30);
-} else if (ct.actions.GreenShoot.pressed && this.facing == 1) {
-    ct.types.copy('LaserBlueLeft', this.x - 48, this.y + 30);
+if  (this.canShoot == true) {
+    this.shootStart = this.timer.time;
+    if (ct.actions.GreenShoot.pressed && this.facing == 0) { 
+        ct.types.copy('GreensLaserBlueRight', this.x + 48, this.y + 30);
+        this.canShoot = false;
+    } else if (ct.actions.GreenShoot.pressed && this.facing == 1) {
+        ct.types.copy('GreensLaserBlueLeft', this.x - 48, this.y + 30);
+        this.canShoot = false;
+    }
+}
+
+this.shootCurrent = this.timer.time;
+if  ((this.shootCurrent - this.shootStart) > this.shootDelay) { //
+    this.canShoot = true;
+}
+
+// Move by horizontal axis, pixel by pixel
+for (var i = 0; i < Math.abs(this.hspeed); i++) {
+    if (ct.place.free(this, this.x + Math.sign(this.hspeed), this.y, 'Solid')) {
+        this.x += Math.sign(this.hspeed);
+    } else {
+        break;
+    }
+}
+// Do the same for vertical speed
+for (var i = 0; i < Math.abs(this.vspeed); i++) {
+    if (ct.place.free(this, this.x, this.y + Math.sign(this.vspeed), 'Solid')) {
+        this.y += Math.sign(this.vspeed);
+    } else {
+        break;
+    }
+}
+
+if (ct.place.occupied(this, this.x, this.y, 'OrangesLaser')) {
+    ct.room.orangeScore += 1;
+}
+    },
+    onDraw: function () {
+        
+    },
+    onDestroy: function () {
+        
+    },
+    onCreate: function () {
+        this.jumpSpeed = -12;
+this.gravity = 0.5;
+
+this.hspeed = 0; // Horizontal speed
+this.vspeed = 0; // Vertical speed
+
+this.facing = 0;
+
+this.visible = true;
+
+this.canShoot = true;
+this.timer = ct.timer.add(360000, 'test');
+this.shootStart = 0
+this.shootCurrent = 0;
+this.shootDelay = 500; // in milliseconds how oftern you can shoot
+    },
+    extends: {
+    "visible": true,
+    "ctype": "GreenTank"
+}
+};
+ct.types.list['GreenTankRight'] = [];
+ct.types.templates["OrangeTankRight"] = {
+    depth: 0,
+    texture: "tankRightOrange",
+    onStep: function () {
+        this.movespeed = 4 * ct.delta; // Max horizontal speed
+
+if (ct.actions.OrangeMoveLeft.down) {
+    // If the A key or left arrow on a keyboard is down, then move to left
+    this.hspeed = -this.movespeed;
+    this.facing = 0;
+    this.visible = false;
+} else if (ct.actions.OrangeMoveRight.down) {
+    // If the D key or right arrow on a keyboard is down, then move to right
+    this.hspeed = this.movespeed;
+    this.facing = 1;
+    this.visible = true;
+} else {
+    // Don't move horizontally if no input
+    this.hspeed = 0;
+}
+
+// If there is ground underneath the Tank
+if (ct.place.occupied(this, this.x, this.y + 1, 'Solid')) {
+    // …and the W key or the spacebar is down…
+    if (ct.actions.OrangeJump.down) {
+        // …then jump!
+        this.vspeed = this.jumpSpeed;
+    } else {
+        // Reset our vspeed. We don't want to be buried underground!
+        this.vspeed = 0;
+    }
+} else {
+    // If there is no ground
+    this.vspeed += this.gravity * ct.delta;
+}
+
+if  (ct.actions.OrangeDown.down) {
+    this.gravity = 1.0;
+} else {
+    this.gravity = 0.5;
+}
+
+// Move by horizontal axis, pixel by pixel
+for (var i = 0; i < Math.abs(this.hspeed); i++) {
+    if (ct.place.free(this, this.x + Math.sign(this.hspeed), this.y, 'Solid')) {
+        this.x += Math.sign(this.hspeed);
+    } else {
+        break;
+    }
+}
+// Do the same for vertical speed
+for (var i = 0; i < Math.abs(this.vspeed); i++) {
+    if (ct.place.free(this, this.x, this.y + Math.sign(this.vspeed), 'Solid')) {
+        this.y += Math.sign(this.vspeed);
+    } else {
+        break;
+    }
+}
+    },
+    onDraw: function () {
+        
+    },
+    onDestroy: function () {
+        
+    },
+    onCreate: function () {
+        this.jumpSpeed = -12;
+this.gravity = 0.5;
+
+this.hspeed = 0; // Horizontal speed
+this.vspeed = 0; // Vertical speed
+
+this.visible = false;
+    },
+    extends: {}
+};
+ct.types.list['OrangeTankRight'] = [];
+ct.types.templates["OrangesLaserBlueLeft"] = {
+    depth: 0,
+    texture: "LaserBlueLeft",
+    onStep: function () {
+        if (this.x < -40 || ct.place.occupied(this, this.x, this.y, 'GreenTank')) {
+    this.kill = true;
 }
 
 this.move();
@@ -4138,21 +4380,39 @@ this.move();
         
     },
     onCreate: function () {
-        this.jumpSpeed = -18;
-this.gravity = 0.5;
-
-this.hspeed = 0; // Horizontal speed
-this.vspeed = 0; // Vertical speed
-
-this.facing = 0;
-
-this.visible = true;
+        this.speed = 8;
+this.direction = 180;
     },
     extends: {
-    "visible": true
+    "ctype": "OrangesLaser"
 }
 };
-ct.types.list['tankLeft'] = [];
+ct.types.list['OrangesLaserBlueLeft'] = [];
+ct.types.templates["OrangesLaserBlueRight"] = {
+    depth: 0,
+    texture: "LaserBlueRight",
+    onStep: function () {
+        if (this.x > 740|| ct.place.occupied(this, this.x, this.y, 'GreenTank')) {
+    this.kill = true;
+}
+
+this.move();
+    },
+    onDraw: function () {
+        
+    },
+    onDestroy: function () {
+        
+    },
+    onCreate: function () {
+        this.speed = 8;
+this.direction = 0;
+    },
+    extends: {
+    "ctype": "OrangesLaser"
+}
+};
+ct.types.list['OrangesLaserBlueRight'] = [];
     
 
     ct.types.beforeStep = function beforeStep() {

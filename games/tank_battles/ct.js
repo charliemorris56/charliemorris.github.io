@@ -60,7 +60,7 @@ const ct = {
      * @type {string}
      */
     version: '1.5.0',
-    meta: [{"name":"Charlie Morris","author":"","site":"","version":"0.0.01"}][0],
+    meta: [{"name":"Tank Battle","author":"Charlie Morris","site":"https://charliemorris56.github.io/","version":"0.0.01"}][0],
     main: {
         fpstick: 0,
         pi: 0
@@ -3302,7 +3302,14 @@ ct.rooms.beforeDraw = function beforeDraw() {
     
 };
 ct.rooms.afterDraw = function afterDraw() {
-    if (ct.sound.follow && !ct.sound.follow.kill) {
+    ct.keyboard.clear();
+ct.mouse.xprev = ct.mouse.x;
+ct.mouse.yprev = ct.mouse.y;
+ct.mouse.xuiprev = ct.mouse.xui;
+ct.mouse.yuiprev = ct.mouse.yui;
+ct.mouse.pressed = ct.mouse.released = false;
+ct.inputs.registry['mouse.Wheel'] = 0;
+if (ct.sound.follow && !ct.sound.follow.kill) {
     ct.sound.howler.pos(
         ct.sound.follow.x,
         ct.sound.follow.y,
@@ -3311,13 +3318,6 @@ ct.rooms.afterDraw = function afterDraw() {
 } else if (ct.sound.manageListenerPosition) {
     ct.sound.howler.pos(ct.camera.x, ct.camera.y, ct.camera.z || 0);
 }
-ct.mouse.xprev = ct.mouse.x;
-ct.mouse.yprev = ct.mouse.y;
-ct.mouse.xuiprev = ct.mouse.xui;
-ct.mouse.yuiprev = ct.mouse.yui;
-ct.mouse.pressed = ct.mouse.released = false;
-ct.inputs.registry['mouse.Wheel'] = 0;
-ct.keyboard.clear();
 
 };
 
@@ -4061,11 +4061,11 @@ for (var i = 0; i < Math.abs(this.vspeed); i++) {
 
 
 // Collision detection for the left laser
-if (ct.place.occupied(this, this.x, this.y, 'GreensLaserLeft')) {
+if (ct.room.greenLaserLeftHit) {
     this.knockBackLeft = true;
     ct.room.greenDamage += 1;    
     ct.room.greenScore += 1;
-    ct.room.greenLaserLeftHit = true;
+    ct.room.greenLaserLeftHit = false;
 }
 
 if (this.knockBackLeft == true) {
@@ -4078,10 +4078,10 @@ if (this.knockBackLeft == true) {
 }
 
 // Collision detection for the right laser
-if (ct.place.occupied(this, this.x, this.y, 'GreensLaserRight')) {
+if (ct.room.greenLaserRightHit) {
     this.knockBackRight = true;
     ct.room.greenDamage += 1;
-    ct.room.greenLaserRightHit = true;
+    ct.room.greenLaserRightHit = false;
 }
 
 if (this.knockBackRight == true) {
@@ -4140,7 +4140,12 @@ ct.types.templates["GreensLaserBlueLeft"] = {
     depth: 0,
     texture: "LaserBlueLeft",
     onStep: function () {
-        if (this.x < -40 || ct.room.greenLaserLeftHit == true) {
+        if (this.x < -40) {
+    this.kill = true;
+}
+
+if (ct.place.occupied(this, this.x, this.y, 'OrangeTank')) {
+    ct.room.greenLaserLeftHit = true;
     this.kill = true;
 }
 
@@ -4167,7 +4172,12 @@ ct.types.templates["GreensLaserBlueRight"] = {
     depth: 0,
     texture: "LaserBlueRight",
     onStep: function () {
-        if (this.x > 740 || ct.room.greenLaserRightHit == true) {
+        if (this.x > 740) {
+    this.kill = true;
+}
+
+if (ct.place.occupied(this, this.x, this.y, 'OrangeTank')) {
+    ct.room.greenLaserRightHit = true;
     this.kill = true;
 }
 
@@ -4268,10 +4278,10 @@ for (var i = 0; i < Math.abs(this.vspeed); i++) {
 }
 
 // Collision detection for the left laser
-if (ct.place.occupied(this, this.x, this.y, 'OrangesLaserLeft')) {
+if (ct.room.orangeLaserLeftHit) {
     this.knockBackLeft = true;
     ct.room.orangeDamage += 1;
-    ct.room.orangeLaserLeftHit = true;
+    ct.room.orangeLaserLeftHit = false;
 }
 
 if (this.knockBackLeft == true) {
@@ -4284,10 +4294,10 @@ if (this.knockBackLeft == true) {
 }
 
 // Collision detection for the right laser
-if (ct.place.occupied(this, this.x, this.y, 'OrangesLaserRight')) {
+if (ct.room.orangeLaserRightHit) {
     this.knockBackRight = true;
     ct.room.orangeDamage += 1;
-    ct.room.orangeLaserRightHit = true;
+    ct.room.orangeLaserRightHit = false;
 }
 
 if (this.knockBackRight == true) {
@@ -4376,7 +4386,12 @@ ct.types.templates["OrangesLaserBlueLeft"] = {
     depth: 0,
     texture: "LaserBlueLeft",
     onStep: function () {
-        if (this.x < -40 || ct.room.orangeLaserLeftHit == true) {
+        if (this.x < -40) {
+    this.kill = true;
+}
+
+if (ct.place.occupied(this, this.x, this.y, 'GreenTank')) {
+    ct.room.orangeLaserLeftHit = true;
     this.kill = true;
 }
 
@@ -4403,7 +4418,12 @@ ct.types.templates["OrangesLaserBlueRight"] = {
     depth: 0,
     texture: "LaserBlueRight",
     onStep: function () {
-        if (this.x > 740 || ct.room.orangeLaserRightHit == true) {
+        if (this.x > 740) {
+    this.kill = true;
+}
+
+if (ct.place.occupied(this, this.x, this.y, 'GreenTank')) {
+    ct.room.orangeLaserRightHit = true;
     this.kill = true;
 }
 
